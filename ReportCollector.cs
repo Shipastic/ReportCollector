@@ -1,4 +1,5 @@
-﻿using NPOI.SS.UserModel;
+﻿using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.Util;
 using NPOI.XSSF.UserModel;
@@ -120,7 +121,8 @@ namespace RepCol_2
 
             ICell cell = rowsheet.CreateCell(0);
 
-            ICellStyle cellStyle = newbook.CreateCellStyle();
+            //ICellStyle cellStyle = newbook.CreateCellStyle();
+                     
 
             //----------- счетчик строк в листе   ------------------
             int countRow = 0;
@@ -138,7 +140,7 @@ namespace RepCol_2
                     // если лист не пустой то вставляем со смещением countRow
                     if (sheetBook.GetRow(sheetBook.LastRowNum) != sheetBook.GetRow(sheetBook.FirstRowNum))
                     {
-                        CountRowNull = CopyRow(int.Parse(rowNumberCopy.Text), sheets[nextsheet], sheetBook, countRow);
+                        CountRowNull = CopyRow(int.Parse(rowNumberCopy.Text), sheets[nextsheet], sheetBook, countRow, newbook);
 
                         countRow += sheets[nextsheet].LastRowNum - int.Parse(rowNumberCopy.Text) + 2- CountRowNull;
                     }
@@ -146,7 +148,7 @@ namespace RepCol_2
                         if (sheetBook.GetRow(sheetBook.LastRowNum) == sheetBook.GetRow(sheetBook.FirstRowNum))
                     {
                         //------ копирование по строкам-----------------
-                        CountRowNull = CopyRow(0, sheets[nextsheet], sheetBook);
+                        CountRowNull = CopyRow(0, sheets[nextsheet], sheetBook, newbook);
 
                         if (int.TryParse(rowNumberCopy.Text, out _) == true)
                             countRow = sheets[nextsheet].LastRowNum - int.Parse(rowNumberCopy.Text) + 2 - CountRowNull;
@@ -269,7 +271,7 @@ namespace RepCol_2
         /// <param name="sourceSheet">лист-источник</param>
         /// <param name="destinationSheet">лист-приемник</param>
         #region CopyRange(CellRangeAddress range, ISheet sourceSheet, ISheet destinationSheet)
-        int CopyRange(CellRangeAddress range, ISheet sourceSheet, ISheet destinationSheet)
+        int CopyRange(CellRangeAddress range, ISheet sourceSheet, ISheet destinationSheet, XSSFWorkbook newbook)
            
         {
             MissingCellPolicy cellPolicyCreaate = new MissingCellPolicy();
@@ -302,7 +304,7 @@ namespace RepCol_2
 
                         destinationRow.CreateCell(col);
 
-                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col));
+                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col), newbook);
                     }
                 }
             }
@@ -319,7 +321,7 @@ namespace RepCol_2
         /// <param name="destinationSheet">лист-приемник</param>
         /// <param name="countRowoffset">смещение</param>
         #region CopyRange(CellRangeAddress range, ISheet sourceSheet, ISheet destinationSheet, int countRowoffset)
-        int CopyRange(CellRangeAddress range, ISheet sourceSheet, ISheet destinationSheet, int countRowoffset)
+        int CopyRange(CellRangeAddress range, ISheet sourceSheet, ISheet destinationSheet, int countRowoffset, XSSFWorkbook newbook)
         {
             MissingCellPolicy cellPolicyCreaate = new MissingCellPolicy();
 
@@ -351,7 +353,7 @@ namespace RepCol_2
                     {
                         destinationRow.CreateCell(col);
 
-                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col));
+                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col), newbook);
                     }
                 }
             }
@@ -367,7 +369,7 @@ namespace RepCol_2
         /// <param name="sourceSheet">лист-источник</param>
         /// <param name="destinationSheet">лист-приемник</param>
         #region CopyRow(int row, ISheet sourceSheet, ISheet destinationSheet)
-        int  CopyRow(int row, ISheet sourceSheet, ISheet destinationSheet)
+        int  CopyRow(int row, ISheet sourceSheet, ISheet destinationSheet, XSSFWorkbook newbook)
         {
             if (int.TryParse(countColumn.Text, out _) == true)
             {
@@ -379,7 +381,7 @@ namespace RepCol_2
 
             int coutNullRow;
 
-            return coutNullRow = CopyRange(range, sourceSheet, destinationSheet);
+            return coutNullRow = CopyRange(range, sourceSheet, destinationSheet, newbook);
         }
         #endregion
 
@@ -392,7 +394,7 @@ namespace RepCol_2
         /// <param name="destinationSheet">лист-приемник</param>
         /// <param name="countRow">смещение</param>
         #region CopyRow(int row, ISheet sourceSheet, ISheet destinationSheet, int countRow)
-        int CopyRow( int row, ISheet sourceSheet, ISheet destinationSheet, int countRow)
+        int CopyRow( int row, ISheet sourceSheet, ISheet destinationSheet, int countRow, XSSFWorkbook newbook)
         {
             lastColumnSource = int.Parse(countColumn.Text);
             int rowNumSource = row - 1;
@@ -401,7 +403,7 @@ namespace RepCol_2
             int rowNullCount = 0;
             //var range = destinationSheet.CopyRow(row, rowNum);
 
-            return rowNullCount = CopyRange(range, sourceSheet, destinationSheet, countRowoffset);
+            return rowNullCount = CopyRange(range, sourceSheet, destinationSheet, countRowoffset, newbook);
         }
         #endregion
 
@@ -412,23 +414,55 @@ namespace RepCol_2
         /// <param name="source">ячейка из книги-источника</param>
         /// <param name="destination">ячейка из книги-приемника</param>
         #region CopyCell(ICell source, ICell destination)
-        void CopyCell(ICell source, ICell destination)
+        void CopyCell(ICell source, ICell destination, XSSFWorkbook newbook)
         {
                 if (destination != null && source != null)
                 {
-                    // destination.CellComment = source.CellComment;
-                    //destination.CellStyle = source.CellStyle;
-                    //destination.Hyperlink = source.Hyperlink;
+                //var defaultFont = newbook.CreateFont();
 
-                    switch (source.CellType)
+                //defaultFont.Color = source.CellStyle.FillBackgroundColor;    
+
+                var cellStyleBorderAndColor = newbook.CreateCellStyle();
+
+                cellStyleBorderAndColor.CloneStyleFrom(source.CellStyle);
+
+                //cellStyleBorderAndColor.SetFont(defaultFont);
+
+                destination.CellStyle = cellStyleBorderAndColor;
+
+                //cellStyleBorderAndColor.FillForegroundColor = IndexedColors.DarkGreen.Index;
+                // cellStyleBorderAndColor.FillForegroundColor = source.CellStyle.FillForegroundColor;
+                cellStyleBorderAndColor.FillPattern = source.CellStyle.FillPattern;
+                // destination.CellComment = source.CellComment;
+                //destination.CellStyle = source.CellStyle;
+                //destination.Hyperlink = source.Hyperlink;
+                //ICellStyle cellStyle = destination.CellStyle;
+                //destination.CellStyle = source.CellStyle;
+                //cellStyleBorderAndColor.FillForegroundColor = source.CellStyle.FillForegroundColor;
+
+                //source.CellStyle.FillForegroundColor;
+                //cellStyleBorderAndColor.FillBackgroundColor = source.CellStyle.FillBackgroundColor;
+                //source.CellStyle.FillBackgroundColor;
+                //destination.CellStyle.FillForegroundColor = source.CellStyle.FillForegroundColor;
+                // destination.CellStyle.SetFont(source.CellStyle.GetFont);
+                switch (source.CellType)
                     {
                         case CellType.Formula:
-                            source.SetCellType(CellType.String);
-                            destination.SetCellValue(source.StringCellValue); break;
+                        source.SetCellType(CellType.String);
+                        //destination.CellStyle = cellStyleBorderAndColor;
+                        destination.SetCellValue(source.StringCellValue);
+                        break;
+
                         case CellType.Numeric:
-                            destination.SetCellValue(source.NumericCellValue); break;
+                        //destination.CellStyle = cellStyleBorderAndColor;
+                        destination.SetCellValue(source.NumericCellValue); 
+                        break;
+
                         case CellType.String:
-                            destination.SetCellValue(source.StringCellValue); break;
+                        //destination.CellStyle = cellStyleBorderAndColor;
+                        destination.SetCellValue(source.StringCellValue);
+                        break;
+
                     }
                 }
         }
@@ -444,6 +478,7 @@ namespace RepCol_2
         IWorkbook[] OpenWorkbook(string[] path)
         {
             IWorkbook[] workbook = new IWorkbook[100];
+
             for (int i = 0; i < path.Length; i++)
             {
                 if (path[i] == null)
@@ -452,10 +487,11 @@ namespace RepCol_2
                 {
                     using (FileStream fileStream = new FileStream(path[i], FileMode.Open, FileAccess.Read))
                     {
-                            workbook[i] = WorkbookFactory.Create(fileStream);
 
-                            //GC.Collect(0, GCCollectionMode.Forced);
+                      workbook[i] = WorkbookFactory.Create(fileStream);
+
                     }
+                    XSSFFormulaEvaluator evaluator = new XSSFFormulaEvaluator(workbook[i]);
                 }
             }           
             return workbook;           
