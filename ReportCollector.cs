@@ -304,7 +304,7 @@ namespace RepCol_2
 
                         destinationRow.CreateCell(col);
 
-                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col), newbook);
+                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col), newbook, col);
                     }
                 }
             }
@@ -353,7 +353,7 @@ namespace RepCol_2
                     {
                         destinationRow.CreateCell(col);
 
-                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col), newbook);
+                        CopyCell(sourceRow.GetCell(col), destinationRow.GetCell(col), newbook, col);
                     }
                 }
             }
@@ -414,13 +414,10 @@ namespace RepCol_2
         /// <param name="source">ячейка из книги-источника</param>
         /// <param name="destination">ячейка из книги-приемника</param>
         #region CopyCell(ICell source, ICell destination)
-        void CopyCell(ICell source, ICell destination, XSSFWorkbook newbook)
+        void CopyCell(ICell source, ICell destination, XSSFWorkbook newbook, int col)
         {
                 if (destination != null && source != null)
                 {
-                //var defaultFont = newbook.CreateFont();
-
-                //defaultFont.Color = source.CellStyle.FillBackgroundColor;    
 
                 var cellStyleBorderAndColor = newbook.CreateCellStyle();
 
@@ -429,42 +426,67 @@ namespace RepCol_2
                 //cellStyleBorderAndColor.SetFont(defaultFont);
 
                 destination.CellStyle = cellStyleBorderAndColor;
+                
+                //var colorForeground = new XSSFColor(new byte[] { 255, 255, 0 });
 
-                //cellStyleBorderAndColor.FillForegroundColor = IndexedColors.DarkGreen.Index;
-                // cellStyleBorderAndColor.FillForegroundColor = source.CellStyle.FillForegroundColor;
-                cellStyleBorderAndColor.FillPattern = source.CellStyle.FillPattern;
+                //var foreground = cellStyleBorderAndColor.FillForegroundColor;
+
+                if (source.CellStyle.FillPattern == FillPattern.SolidForeground)
+                {
+                    cellStyleBorderAndColor.FillPattern = FillPattern.SolidForeground;
+
+                    //short cellBackground = source.CellStyle.FillForegroundColor;
+
+                    //destination.CellStyle.FillForegroundColor = cellBackground;
+                    destination.CellStyle.FillPattern = source.CellStyle.FillPattern;
+                }
+                
                 // destination.CellComment = source.CellComment;
                 //destination.CellStyle = source.CellStyle;
                 //destination.Hyperlink = source.Hyperlink;
-                //ICellStyle cellStyle = destination.CellStyle;
-                //destination.CellStyle = source.CellStyle;
-                //cellStyleBorderAndColor.FillForegroundColor = source.CellStyle.FillForegroundColor;
 
-                //source.CellStyle.FillForegroundColor;
-                //cellStyleBorderAndColor.FillBackgroundColor = source.CellStyle.FillBackgroundColor;
-                //source.CellStyle.FillBackgroundColor;
-                //destination.CellStyle.FillForegroundColor = source.CellStyle.FillForegroundColor;
-                // destination.CellStyle.SetFont(source.CellStyle.GetFont);
                 switch (source.CellType)
                     {
                         case CellType.Formula:
+
                         source.SetCellType(CellType.String);
-                        //destination.CellStyle = cellStyleBorderAndColor;
+
+                        var fontFormula = (XSSFFont)newbook.CreateFont();
+
+                        var colorFormula = new XSSFColor(new byte[] { 0, 176, 80 });
+
+                        var backGroundFormula = new XSSFColor(new byte[] { 142, 169, 219 });
+
                         destination.SetCellValue(source.StringCellValue);
+
+                        if (col == 13 && destination.StringCellValue == "ОК")
+                        {
+                            fontFormula.SetColor(colorFormula);
+
+                            cellStyleBorderAndColor.SetFont(fontFormula);
+                        }
                         break;
 
-                        case CellType.Numeric:
-                        //destination.CellStyle = cellStyleBorderAndColor;
+                        case CellType.Numeric:                      
                         destination.SetCellValue(source.NumericCellValue); 
                         break;
 
                         case CellType.String:
-                        //destination.CellStyle = cellStyleBorderAndColor;
-                        destination.SetCellValue(source.StringCellValue);
-                        break;
+                        //var fontString = (XSSFFont)newbook.CreateFont();
 
+                        //var colorString = new XSSFColor(new byte[] { 0, 176, 80 });
+                        destination.SetCellValue(source.StringCellValue);
+                        //if (col == 13 && destination.StringCellValue == "ОК" )
+                        //{
+                        //    fontString.SetColor(colorString);
+
+                        //    cellStyleBorderAndColor.SetFont(fontString);
+                        //}
+                        break;
                     }
-                }
+
+            }
+            
         }
         #endregion
 
