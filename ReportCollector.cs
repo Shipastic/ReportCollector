@@ -236,31 +236,6 @@ namespace RepCol_2
             //return sheets;
         }
 
-        //=======================   Метод чтения всех книг в поток   ===============================
-        /// <summary>
-        /// Метод записи в поток книг в цикле
-        /// </summary>
-        /// <param name="ListBook">массив файлов для записи в поток</param>
-        /// <param name="books"></param>
-        /// <param name="sheets"></param>
-        #region GetStreamFromBook(string[] ListBook, out IWorkbook[] books, out ISheet[] sheets)
-        //private void GetStreamFromBook(string[] ListBook, out IWorkbook[] books)
-        //{
-        //    //---------------   список книг   ----------------
-        //    //books = new IWorkbook[ListBook.Length];
-        //    books = OpenWorkbook(ListBook);
-        //    //----------    список листов книг    ------------
-        //    //sheets = new ISheet[500];
-        //    //for (int i = 0; i < ListBook.Length; i++)
-        //    //{
-        //    //    if (ListBook[i] == null)
-        //    //        break;
-        //    //    else
-        //    //        books[i] = OpenWorkbook(ListBook);
-        //    //}
-        //}
-        #endregion
-
         #endregion     
 
         //================================================================================
@@ -684,28 +659,6 @@ namespace RepCol_2
                 //GetNameListWorkBooks(filesPath);
             }
         }
-        #endregion
-        //==========   Получение названий листов файлов и вывод в comboBox   =========
-        /// <summary>
-        /// Метод получения имен листов и вывод в комбобокс
-        /// </summary>
-        #region GetListWorkBooks()
-        //private void GetNameListWorkBooks(string[] filesPath)
-        //{           
-        //    oSheetList = GetBooksSource(filesPath);
-         
-        //    for (int i = 0; i < oSheetList.Length; i++)
-        //    {
-        //        //Проверка существования такого листа в comboBox
-        //        if (oSheetList[i] == null)
-        //            break;
-        //        else
-        //        if (!tabNameBox.Items.OfType<string>().Contains(oSheetList[i].SheetName))
-        //        {
-        //            tabNameBox.Items.Add(oSheetList[i].SheetName);
-        //        }
-        //    }
-        //}
         #endregion
 
         //===============  Обработчик нажатия кнопки сохранения агрегированного файла  ==========================
